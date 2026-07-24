@@ -21,10 +21,8 @@ jobs:
             pkg-config \
             libcurl4-openssl-dev \
             curl \
-            protobuf-compiler protobuf libprotobuf-dev \
-            grpc++ protobuf-compiler-grpc libgrpc++-dev \
-            golang-github-containerd-containerd-dev \
-            golang-github-gogo-protobuf-dev
+            protobuf-compiler \
+            libprotobuf-dev
 
       - name: Prepare build
         run: autoreconf -i
@@ -35,14 +33,13 @@ jobs:
       - name: Build
         run: make -j$(nproc)
 
-      - name: Package (make install into staging)
+      - name: Install to staging
         run: |
           mkdir -p build-out
           sudo make DESTDIR=build-out install
 
       - name: Create tarball
-        run: |
-          tar -czvf open-vm-tools.tar.gz build-out
+        run: tar -czvf open-vm-tools.tar.gz build-out
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
