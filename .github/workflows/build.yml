@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout VMware open-vm-tools
+      - name: Clone VMware open-vm-tools
         run: |
           git clone https://github.com/vmware/open-vm-tools.git src
 
