@@ -1,0 +1,57 @@
+name: Build open-vm-tools
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone VMware open-vm-tools
+        run: |
+          git clone https://github.com/vmware/open-vm-tools.git src
+
+      - name: Install build dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            build-essential \
+            automake autoconf libtool \
+            pkg-config \
+            libcurl4-openssl-dev \
+            curl \
+            protobuf-compiler \
+            libprotobuf-dev
+
+      - name: Prepare build
+        run: |
+          cd src
+          autoreconf -i
+
+      - name: Configure
+        run: |
+          cd src
+          ./configure --enable-containerinfo=no
+
+      - name: Build
+        run: |
+          cd src
+          make -j$(nproc)
+
+      - name: Install to staging
+        run: |
+          cd src
+          mkdir -p ../build-out
+          sudo make DESTDIR=../build-out install
+
+      - name: Create tarball
+        run: |
+          tar -czvf open-vm-tools.tar.gz build-out
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: open-vm-tools-build
+          path: open-vm-tools.tar.gz
