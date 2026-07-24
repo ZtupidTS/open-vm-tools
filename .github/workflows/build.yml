@@ -9,8 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+      - name: Checkout VMware open-vm-tools
+        run: |
+          git clone https://github.com/vmware/open-vm-tools.git src
 
       - name: Install build dependencies
         run: |
@@ -25,21 +26,29 @@ jobs:
             libprotobuf-dev
 
       - name: Prepare build
-        run: autoreconf -i
+        run: |
+          cd src
+          autoreconf -i
 
       - name: Configure
-        run: ./configure --enable-containerinfo=no
+        run: |
+          cd src
+          ./configure --enable-containerinfo=no
 
       - name: Build
-        run: make -j$(nproc)
+        run: |
+          cd src
+          make -j$(nproc)
 
       - name: Install to staging
         run: |
-          mkdir -p build-out
-          sudo make DESTDIR=build-out install
+          cd src
+          mkdir -p ../build-out
+          sudo make DESTDIR=../build-out install
 
       - name: Create tarball
-        run: tar -czvf open-vm-tools.tar.gz build-out
+        run: |
+          tar -czvf open-vm-tools.tar.gz build-out
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
