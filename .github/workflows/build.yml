@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install build dependencies
         run: |
@@ -34,17 +34,18 @@ jobs:
 
       - name: Build
         run: make -j$(nproc)
+
+      - name: Package (make install into staging)
+        run: |
+          mkdir -p build-out
+          sudo make DESTDIR=build-out install
+
       - name: Create tarball
         run: |
-          make dist
-          tar -czvf open-vm-tools.tar.gz .
+          tar -czvf open-vm-tools.tar.gz build-out
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: open-vm-tools-build
           path: open-vm-tools.tar.gz
-
-
-      - name: Package
-        run: sudo make install
