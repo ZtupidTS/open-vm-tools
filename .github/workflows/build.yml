@@ -34,6 +34,17 @@ jobs:
 
       - name: Build
         run: make -j$(nproc)
+      - name: Create tarball
+        run: |
+          make dist
+          tar -czvf open-vm-tools.tar.gz .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: open-vm-tools-build
+          path: open-vm-tools.tar.gz
+
 
       - name: Package
         run: sudo make install
